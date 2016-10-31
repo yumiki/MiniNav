@@ -7,6 +7,7 @@ import android.widget.Button;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -22,10 +23,15 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 HttpURLConnection pageWeb = (HttpURLConnection) urlPage.openConnection() ;
+                pageWeb.connect();
+                pageWeb.setReadTimeout(10000);
                 OutputStreamWriter wosr= new OutputStreamWriter(pageWeb.getOutputStream());
                 BufferedWriter wbw=new BufferedWriter(wosr);
                 wbw.write("GET / \n");
                 wbw.flush();
+
+                InputStreamReader isr = new InputStreamReader(pageWeb.getInputStream());
+                BufferedWriter
             } catch (IOException e) {
                 e.printStackTrace();
             }
