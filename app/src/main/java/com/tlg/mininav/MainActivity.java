@@ -8,11 +8,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
-    URL urlPage= new URL("");
+    public URL urlPage= null;
 
     Thread web = new Thread(new Runnable() {
         @Override
         public void run() {
+
             HttpURLConnection pageWeb = new HttpURLConnection(urlPage) {
                 @Override
                 public void disconnect() {
@@ -28,12 +29,13 @@ public class MainActivity extends AppCompatActivity {
                 public void connect() throws IOException {
 
                 }
-            }
+            };
         }
     });
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
     }
 }
