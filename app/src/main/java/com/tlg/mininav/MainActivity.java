@@ -2,35 +2,33 @@ package com.tlg.mininav;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.BufferUnderflowException;
 
 public class MainActivity extends AppCompatActivity {
-    public URL urlPage= null;
+    public URL urlPage= new URL("http://www.perdu.com");
 
     Thread web = new Thread(new Runnable() {
         @Override
         public void run() {
 
-            HttpURLConnection pageWeb = new HttpURLConnection(urlPage) {
-                @Override
-                public void disconnect() {
-
-                }
-
-                @Override
-                public boolean usingProxy() {
-                    return false;
-                }
-
-                @Override
-                public void connect() throws IOException {
-
-                }
-            };
+            try {
+                HttpURLConnection pageWeb = (HttpURLConnection) urlPage.openConnection() ;
+                OutputStreamWriter wosr= new OutputStreamWriter(pageWeb.getOutputStream());
+                BufferedWriter wbw=new BufferedWriter(wosr);
+                wbw.write("GET / \n");
+                wbw.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     });
 
@@ -42,5 +40,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Button go = (Button) findViewById(R.id.button);
+        go.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                web.start();
+            }
+        });
     }
 }
