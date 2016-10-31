@@ -11,6 +11,8 @@ import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,6 +27,7 @@ import java.security.NoSuchAlgorithmException;
 public class MainActivity extends AppCompatActivity {
     URL urlPage= null;
     String buffer=null;
+    StringBuffer sb;
 
     Thread web = new Thread(new Runnable() {
         @Override
@@ -33,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 String cacheMd5="test";
                 cacheMd5=md5(urlPage.toString());
-                File cache = new File(getFilesDir(),cacheMd5);
+                final File cache = new File(getFilesDir(),cacheMd5);
                 if(!cache.exists()) {
                     HttpURLConnection pageWeb = (HttpURLConnection) urlPage.openConnection();
                     pageWeb.setReadTimeout(10000);
@@ -44,8 +47,8 @@ public class MainActivity extends AppCompatActivity {
                     OutputStreamWriter osw = new OutputStreamWriter(fos);
                     BufferedWriter bw = new BufferedWriter(osw);
                     while (buffer != null) {
-
                         bw.write(buffer);
+                        Log.d("Web", buffer);
                         buffer=br.readLine();
                     }
                     bw.close();
@@ -55,9 +58,24 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         TextView t1= (TextView) findViewById(R.id.TextView1);
-                        t1.setText(buffer);
+                        try {
+                            FileInputStream fis = new FileInputStream(cache);
+                            InputStreamReader isr = new InputStreamReader(fis);
+                            BufferedReader br = new BufferedReader(isr);
+                            buffer=br.readLine();
+                            while (buffer != null) {
+                                t1.setText(buffer);
+                                Log.d("Web", buffer);
+                                buffer=br.readLine();
+                            }
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
+
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -87,7 +105,18 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 Log.d("Texte", texteURL);
-               web.start();
+                try {
+                    web.start();
+                }
+                catch (Exception e){
+                    try {
+                        web.join();
+                        web.start();
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                    e.printStackTrace();
+                }
             }
         });
     }
