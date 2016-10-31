@@ -22,7 +22,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class MainActivity extends AppCompatActivity {
-    public URL urlPage= new URL("http://www.perdu.com");
+    URL urlPage= null;
 
     Thread web = new Thread(new Runnable() {
         @Override
@@ -70,6 +70,11 @@ public class MainActivity extends AppCompatActivity {
                 String texteURL = field1.getText().toString();
                 TextView t1= (TextView) findViewById(R.id.TextView1);
                 t1.setText(texteURL);
+                try {
+                    urlPage=new URL(texteURL);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
 
                 Log.d("Texte", texteURL);
                // web.start();
