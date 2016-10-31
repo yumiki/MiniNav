@@ -24,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class MainActivity extends AppCompatActivity {
     URL urlPage= null;
+    String buffer=null;
 
     Thread web = new Thread(new Runnable() {
         @Override
@@ -38,17 +39,23 @@ public class MainActivity extends AppCompatActivity {
                     pageWeb.setReadTimeout(10000);
                     InputStreamReader isr = new InputStreamReader(pageWeb.getInputStream());
                     BufferedReader br = new BufferedReader(isr);
-                    while (br.readLine() != null) {
-                        FileOutputStream fos = new FileOutputStream(cache);
-                        OutputStreamWriter osw = new OutputStreamWriter(fos);
-                        BufferedWriter
+                    buffer=br.readLine();
+                    FileOutputStream fos = new FileOutputStream(cache);
+                    OutputStreamWriter osw = new OutputStreamWriter(fos);
+                    BufferedWriter bw = new BufferedWriter(osw);
+                    while (buffer != null) {
+
+                        bw.write(buffer);
+                        buffer=br.readLine();
                     }
+                    bw.close();
                 }
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
+                        TextView t1= (TextView) findViewById(R.id.TextView1);
+                        t1.setText(buffer);
                     }
                 });
 
@@ -80,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 Log.d("Texte", texteURL);
-               // web.start();
+               web.start();
             }
         });
     }
