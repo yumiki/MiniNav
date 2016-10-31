@@ -2,8 +2,12 @@ package com.tlg.mininav;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -31,12 +35,16 @@ public class MainActivity extends AppCompatActivity {
                 wbw.flush();
 
                 InputStreamReader isr = new InputStreamReader(pageWeb.getInputStream());
-                BufferedWriter
+                //BufferedWriter
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     });
+
+
+
+
 
     public MainActivity() throws MalformedURLException {
     }
@@ -45,12 +53,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        final EditText field1 = (EditText) findViewById(R.id.editText);
         Button go = (Button) findViewById(R.id.button);
         go.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                web.start();
+                String texteURL = field1.getText().toString();
+                TextView t1= (TextView) findViewById(R.id.TextView1);
+                t1.setText(texteURL);
+
+                Log.d("Texte", texteURL);
+               // web.start();
             }
         });
     }
