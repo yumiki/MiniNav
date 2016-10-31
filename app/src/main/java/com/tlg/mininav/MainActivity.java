@@ -8,7 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
-    URL urlPage= new URL("lll");
+    URL urlPage= new URL("");
 
     Thread web = new Thread(new Runnable() {
         @Override
