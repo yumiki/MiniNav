@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,6 +32,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     });
+
+    public MainActivity() throws MalformedURLException {
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
