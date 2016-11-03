@@ -2,6 +2,7 @@ package com.tlg.mininav;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -28,58 +29,66 @@ public class MainActivity extends AppCompatActivity {
     URL urlPage= null;
     String buffer=null;
     StringBuffer sb;
+    public boolean shouldContinue=true;
+
 
     Thread web = new Thread(new Runnable() {
+
         @Override
         public void run() {
-
-            try {
-                String cacheMd5="test";
-                cacheMd5=md5(urlPage.toString());
-                final File cache = new File(getFilesDir(),cacheMd5);
-                if(!cache.exists()) {
-                    HttpURLConnection pageWeb = (HttpURLConnection) urlPage.openConnection();
-                    pageWeb.setReadTimeout(10000);
-                    InputStreamReader isr = new InputStreamReader(pageWeb.getInputStream());
-                    BufferedReader br = new BufferedReader(isr);
-                    buffer=br.readLine();
-                    FileOutputStream fos = new FileOutputStream(cache);
-                    OutputStreamWriter osw = new OutputStreamWriter(fos);
-                    BufferedWriter bw = new BufferedWriter(osw);
-                    while (buffer != null) {
-                        bw.write(buffer);
-                        Log.d("Web", buffer);
-                        buffer=br.readLine();
+            while (shouldContinue) {
+                try {
+                    String cacheMd5 = "test";
+                    cacheMd5 = md5(urlPage.toString());
+                    final File cache = new File(getFilesDir(), cacheMd5);
+                    if (!cache.exists()) {
+                        HttpURLConnection pageWeb = (HttpURLConnection) urlPage.openConnection();
+                        pageWeb.setReadTimeout(10000);
+                        InputStreamReader isr = new InputStreamReader(pageWeb.getInputStream());
+                        BufferedReader br = new BufferedReader(isr);
+                        buffer = br.readLine();
+                        FileOutputStream fos = new FileOutputStream(cache);
+                        OutputStreamWriter osw = new OutputStreamWriter(fos);
+                        BufferedWriter bw = new BufferedWriter(osw);
+                        while ((buffer != null)&&(shouldContinue==true)) {
+                            bw.write(buffer);
+                            buffer = br.readLine();
+                            if(buffer==null)shouldContinue=false;
+                        }
+                        bw.close();
                     }
-                    bw.close();
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            TextView t1 = (TextView) findViewById(R.id.TextView1);
+                            try {
+                                FileInputStream fis = new FileInputStream(cache);
+                                InputStreamReader isr = new InputStreamReader(fis);
+                                BufferedReader br = new BufferedReader(isr);
+                                buffer = br.readLine();
+                                while ((buffer != null)&&(shouldContinue==true)) {
+                                    t1.setText(buffer);
+                                    buffer = br.readLine();
+                                    if(buffer==null)shouldContinue=false;
+                                }
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        TextView t1= (TextView) findViewById(R.id.TextView1);
-                        try {
-                            FileInputStream fis = new FileInputStream(cache);
-                            InputStreamReader isr = new InputStreamReader(fis);
-                            BufferedReader br = new BufferedReader(isr);
-                            buffer=br.readLine();
-                            while (buffer != null) {
-                                t1.setText(buffer);
-                                Log.d("Web", buffer);
-                                buffer=br.readLine();
-                            }
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+        }
+
+        public void setShouldContinue(boolean bool){
+            shouldContinue=bool;
         }
     });
 
@@ -97,7 +106,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String texteURL = field1.getText().toString();
                 TextView t1= (TextView) findViewById(R.id.TextView1);
-                t1.setText(texteURL);
+                t1.setText("Chargement...");
+                t1.setMovementMethod(new ScrollingMovementMethod());
                 try {
                     urlPage=new URL(texteURL);
                 } catch (MalformedURLException e) {
@@ -105,18 +115,15 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 Log.d("Texte", texteURL);
+                shouldContinue=false;
                 try {
-                    web.start();
-                }
-                catch (Exception e){
-                    try {
-                        web.join();
-                        web.start();
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
+                    web.join();
+                    shouldContinue=true;
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                web.start();
+
             }
         });
     }
